@@ -17,39 +17,7 @@
             min-height: 100vh;
             overflow: hidden;
             background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAYAAACp8Z5+AAAAEElEQVQImWNgYGBgYGBgYGBgYAAAAAYAAJcIHwQAAAAASUVORK5CYII=');
-            transition: background-color 0.3s, color 0.3s; /* إضافة انتقال سلس لتغيير الألوان */
         }
-
-        body.dark-mode { /* أنماط الوضع المظلم */
-            background-color: #121212;
-            color: #eeeeee;
-        }
-        body.dark-mode .header,
-        body.dark-mode .input-area {
-            background-color: #1e1e1e;
-            border-color: #333;
-        }
-        body.dark-mode .header-title,
-        body.dark-mode .new-chat-button,
-        body.dark-mode .input-field,
-        body.dark-mode .plus-button,
-        body.dark-mode .send-button,
-        body.dark-mode .deep-think-button,
-        body.dark-mode .thinking-indicator {
-            color: #eeeeee;
-        }
-        body.dark-mode .input-field {
-            background-color: #333;
-        }
-        body.dark-mode .ai-message {
-            background-color: #424242;
-            color: #eeeeee;
-        }
-        body.dark-mode .user-message {
-            background-color: #294d70; /* لون أغمق لرسائل المستخدم في الوضع المظلم */
-            color: #eeeeee;
-        }
-
 
         * {
             font-family: 'Mada', sans-serif;
@@ -65,12 +33,7 @@
             box-shadow: 0 0 20px rgba(0,0,0,0.08);
             display: flex;
             flex-direction: column;
-            transition: background-color 0.3s; /* إضافة انتقال سلس لتغيير لون الخلفية */
         }
-        body.dark-mode .chat-container {
-            background-color: #1e1e1e;
-        }
-
 
         .header {
             padding: 15px;
@@ -82,10 +45,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background-color: #fff; /* لون خلفية للوضع النهاري */
-            transition: background-color 0.3s, border-color 0.3s; /* إضافة انتقال سلس لتغيير لون الخلفية والحدود */
         }
-
         .header-title {
             margin: 0;
             flex-grow: 1;
@@ -93,7 +53,7 @@
             font-weight: 500;
         }
 
-        .new-chat-button, .dark-mode-button { /* دمج الأنماط المشتركة لزر الدردشة الجديدة و الوضع المظلم */
+        .new-chat-button {
             background: none;
             border: none;
             color: #333;
@@ -101,13 +61,7 @@
             cursor: pointer;
             padding: 0;
             margin-left: 10px;
-            transition: color 0.3s; /* انتقال سلس لتغيير اللون */
         }
-        .dark-mode-button {
-            margin-left: 0; /* إزالة الهامش الأيسر لأيقونة الوضع المظلم */
-            margin-right: 10px; /* إضافة هامش أيمن لأيقونة الوضع المظلم */
-        }
-
 
         .scrollable-content {
             flex-grow: 1;
@@ -142,34 +96,35 @@
             width: 100%;
         }
 
-        .ai-message, .user-message {
+        .ai-message {
             padding: 12px 18px;
             border-radius: 25px;
             max-width: 80%;
             word-wrap: break-word;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-            animation: fadeIn 0.3s ease-out;
-            white-space: pre-line;
-            transition: background-color 0.3s, color 0.3s; /* إضافة انتقال سلس لتغيير الألوان */
-        }
-
-
-        .ai-message {
             background-color: #f0f0f0;
             color: #333;
             margin-right: 10px;
-
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+            animation: fadeIn 0.3s ease-out;
+            white-space: pre-line;
         }
 
         .user-message {
+            padding: 12px 18px;
+            border-radius: 25px;
+            max-width: 80%;
+            word-wrap: break-word;
             background-color: #e0f7fa;
             color: #333;
             margin-left: 10px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+            animation: fadeIn: fadeIn 0.3s ease-out;
+            white-space: pre-line;
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(5px); }
-            to { opacity: 1; transform: translateY(0); }
+            from: { opacity: 0; transform: translateY(5px); }
+            to: { opacity: 1; transform: translateY(0); }
         }
 
         .ai-message-wrapper {
@@ -219,19 +174,19 @@
             mask-composite: source-over;
         }
 
-        .greeting-text, .question-text {
+        .greeting-text {
             font-size: 22px;
             color: #333;
             margin-bottom: 10px;
             text-align: center;
             font-weight: 500;
-            transition: color 0.3s; /* إضافة انتقال سلس لتغيير اللون */
-        }
-        .question-text {
-            font-size: 16px;
-            color: #666;
         }
 
+        .question-text {
+            font-size: 22px;
+            color: #666;
+            text-align: center;
+        }
 
         .input-area {
             width: 100%;
@@ -242,7 +197,6 @@
             align-items: center;
             box-sizing: border-box;
             flex-shrink: 0;
-            transition: background-color 0.3s, border-color 0.3s; /* إضافة انتقال سلس لتغيير لون الخلفية والحدود */
         }
 
         .input-area.buttons-area {
@@ -254,7 +208,6 @@
             justify-content: flex-end;
         }
 
-
         .input-field {
             flex-grow: 1;
             border: none;
@@ -264,15 +217,7 @@
             margin-right: 10px;
             font-family: 'Mada', sans-serif;
             outline: none;
-            resize: none; /* منع تغيير حجم مربع النص */
-            height: auto; /* السماح بزيادة الارتفاع حسب المحتوى */
-            overflow-y: auto; /* إضافة شريط تمرير عمودي عند الحاجة */
-            min-height: 40px; /* تحديد ارتفاع أدنى لمربع النص */
-            max-height: 150px; /* تحديد ارتفاع أقصى لمربع النص */
-            line-height: 1.5; /* تحسين تباعد الأسطر */
-            transition: background-color 0.3s, color 0.3s; /* إضافة انتقال سلس لتغيير الألوان */
         }
-
 
         .plus-button, .send-button, .deep-think-button {
             background-color: #e0e0e0;
@@ -287,7 +232,7 @@
             cursor: pointer;
             margin-left: 5px;
             margin-right: 5px;
-            transition: background-color 0.3s, color 0.3s; /* إضافة انتقال سلس لتغيير الألوان */
+            transition: background-color 0.3s ease;
             position: relative;
             overflow: hidden;
         }
@@ -295,7 +240,6 @@
         .plus-button i, .send-button i, .deep-think-button i {
             font-size: 18px;
         }
-
 
         .deep-think-button {
             border-radius: 25px;
@@ -313,7 +257,6 @@
             font-size: 16px;
         }
 
-
         .deep-think-button.active {
             background-color: #3b82f6;
             color: white;
@@ -323,9 +266,7 @@
             color: white;
         }
 
-
-        /* تأثير التموج البسيط عند الضغط */
-        .plus-button::after, .send-button::after, .deep-think-button::after, .new-chat-button::after, .dark-mode-button::after {
+        .plus-button::after, .send-button::after, .deep-think-button::after {
             content: '';
             display: block;
             position: absolute;
@@ -341,12 +282,11 @@
             transition: opacity 0.3s ease-in-out;
         }
 
-        .plus-button:active::after, .send-button:active::after, .deep-think-button:active::after, .new-chat-button:active::after, .dark-mode-button:active::after {
+        .plus-button:active::after, .send-button:active::after, .deep-think-button:active::after {
             opacity: 1;
             transform: scale(1);
             transition: transform 0s, opacity 0.3s ease-in-out;
         }
-
 
         .thinking-indicator {
             display: none;
@@ -355,7 +295,6 @@
             padding: 10px;
             color: #777;
             font-size: 14px;
-            transition: color 0.3s; /* إضافة انتقال سلس لتغيير اللون */
         }
 
         .thinking-indicator.active {
@@ -370,10 +309,7 @@
             <button class="new-chat-button" id="new-chat-button">
                 <i class="far fa-comment-alt"></i>
             </button>
-            <h2 class="header-title">Sareea</h2>
-            <button class="dark-mode-button" id="dark-mode-button">
-                <i class="fas fa-moon"></i>
-            </button>
+            <h2 class="header-title">اهلا عزيزتي هاجر ❤️</h2>
         </div>
         <div class="scrollable-content">
             <div class="initial-content" id="initial-greeting">
@@ -391,7 +327,7 @@
 
         <div class="input-area">
             <button class="plus-button"><i class="fas fa-plus"></i></button>
-            <textarea class="input-field" id="message-input" placeholder="أرسل رسالة إلى Sareea"></textarea>
+            <input type="text" class="input-field" id="message-input" placeholder="أرسل رسالة إلى Sareea">
             <button class="send-button" id="send-button"><i class="fas fa-arrow-up"></i></button>
         </div>
 
@@ -410,38 +346,16 @@
         const initialGreeting = document.getElementById('initial-greeting');
         const newChatButton = document.getElementById('new-chat-button');
         const thinkingIndicator = document.getElementById('thinking-indicator');
-        const darkModeButton = document.getElementById('dark-mode-button'); /* تم الحصول على زر الوضع المظلم */
         let firstMessageSent = false;
         let isDeepThinkingActive = false;
         const thinkingDelay = 4000;
         const typingSpeed = 30;
-        let isDarkMode = localStorage.getItem('darkMode') === 'enabled'; /* حالة الوضع المظلم */
 
-
-        // دالة لتحديث حالة الوضع المظلم وحفظها في LocalStorage
-        function updateDarkMode(enabled) {
-            isDarkMode = enabled;
-            document.body.classList.toggle('dark-mode', enabled);
-            localStorage.setItem('darkMode', enabled ? 'enabled' : 'disabled');
-            darkModeButton.innerHTML = enabled ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>'; /* تغيير الأيقونة */
-        }
-
-        // تهيئة الوضع المظلم عند تحميل الصفحة
-        updateDarkMode(isDarkMode);
-
-
-        darkModeButton.addEventListener('click', () => { /* معالج حدث زر الوضع المظلم */
-            updateDarkMode(!isDarkMode); /* تبديل الوضع المظلم */
-        });
-
-
-        sendButton.addEventListener('click', (e) => {
-            e.preventDefault(); /* منع ارسال النموذج */
+        sendButton.addEventListener('click', () => {
             const messageText = messageInput.value.trim().toLowerCase();
             if (messageText !== '') {
                 addUserMessage(messageText);
                 messageInput.value = '';
-                messageInput.style.height = 'auto'; /* إعادة تعيين الارتفاع بعد الإرسال */
 
                 if (!firstMessageSent) {
                     initialGreeting.style.display = 'none';
@@ -453,16 +367,14 @@
                 }
 
                 const apiEndpoint = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
-                let promptText = isDeepThinkingActive
-                    ? `أجب بدقة وذكاء واحترافية واختصار، مع استخدام علامات الترقيم المناسبة في اللغة العربية، على السؤال التالي: ${messageText}`
-                    : `أجب بدقة وذكاء واحترافية واختصار، مع استخدام علامات الترقيم المناسبة في اللغة العربية، على السؤال التالي: ${messageText}`;
+                let promptText = isDeepThinkingActive ? `فكر بعمق وبدقة واحترافية في الإجابة على سؤالي: ${messageText}` : messageText;
 
 
-                // فحص إذا كان المستخدم يسأل عن المطور/المدرب وتعديل الوصف
+                // Check if user asked about creator/trainer and modify prompt
                 if (messageText.includes('من طورك') || messageText.includes('من دربك') || messageText.includes('من صنعك') || messageText.includes('من انشأك')) {
                     promptText = isDeepThinkingActive
-                        ? `فكر بعمق وبدقة واحترافية واختصار، مع استخدام علامات الترقيم المناسبة في اللغة العربية في الإجابة على سؤالي: ${messageText} وأخبر المستخدم في إجابتك أنك مدرب أو مطور من قبل Sareea.`
-                        : `${messageText} وأخبر المستخدم في إجابتك أنك مدرب أو مطور من قبل Sareea. وأجب باختصار ودقة واحترافية وذكاء مع استخدام علامات الترقيم المناسبة في اللغة العربية.`;
+                        ? `فكر بعمق وبدقة واحترافية في الإجابة على سؤالي: ${messageText} وأخبر المستخدم في إجابتك أنك مدرب أو مطور من قبل Sareea.`
+                        : `${messageText} وأخبر المستخدم في إجابتك أنك مدرب أو مطور من قبل Sareea.`;
                 }
 
 
@@ -488,6 +400,7 @@
                         console.error("Unexpected API response:", data);
                     }
 
+
                     if (isDeepThinkingActive) {
                         setTimeout(() => {
                             thinkingIndicator.classList.remove('active');
@@ -508,11 +421,12 @@
             }
         });
 
-        messageInput.addEventListener('input', () => {
-            messageInput.style.height = 'auto'; /* ضبط الارتفاع تلقائيا */
-            messageInput.style.height = messageInput.scrollHeight + 'px'; /* ضبط الارتفاع حسب المحتوى */
+        messageInput.addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                sendButton.click();
+            }
         });
-
 
         function addUserMessage(message) {
             const messageDiv = document.createElement('div');
@@ -536,4 +450,64 @@
 
             const messageDiv = document.createElement('div');
             messageDiv.classList.add('ai-message');
-        
+            messageDiv.innerHTML = message;
+            messageWrapper.appendChild(messageDiv);
+
+            messagesArea.appendChild(messageWrapper);
+            scrollToBottom();
+        }
+
+        function addAiMessageWithTypingEffect(text) {
+            const messageWrapper = document.createElement('div');
+            messageWrapper.classList.add('ai-message-wrapper');
+
+            const profileIcon = document.createElement('div');
+            profileIcon.classList.add('profile-icon');
+            messageWrapper.appendChild(profileIcon);
+
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('ai-message');
+            messageWrapper.appendChild(messageDiv);
+            messagesArea.appendChild(messageWrapper);
+            scrollToBottom();
+
+            let charIndex = 0;
+            function typeWriter() {
+                if (charIndex < text.length) {
+                    messageDiv.innerHTML += text.charAt(charIndex);
+                    messageDiv.dir = "rtl";
+                    messageDiv.textContent = text.substring(0, charIndex + 1);
+                    charIndex++;
+                    setTimeout(typeWriter, typingSpeed);
+                } else {
+                    messageDiv.dir = "rtl";
+                }
+            }
+            typeWriter();
+        }
+
+        function scrollToBottom() {
+            messagesArea.scrollTop = messagesArea.scrollHeight;
+        }
+
+        deepThinkButton.addEventListener('click', () => {
+            isDeepThinkingActive = !isDeepThinkingActive;
+            deepThinkButton.classList.toggle('active', isDeepThinkingActive);
+            if (isDeepThinkingActive) {
+                console.log("Deep thinking mode activated");
+            } else {
+                console.log("Deep thinking mode deactivated");
+            }
+        });
+
+        newChatButton.addEventListener('click', () => {
+            messagesArea.innerHTML = '';
+            initialGreeting.style.display = 'flex';
+            firstMessageSent = false;
+            isDeepThinkingActive = false;
+            deepThinkButton.classList.remove('active');
+        });
+    </script>
+
+</body>
+</html>
