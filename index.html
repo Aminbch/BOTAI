@@ -1,513 +1,55 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sareea AI Chat</title>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Mada:wght@400;500;700&display=swap">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <style>
-        body {
-            font-family: 'Mada', sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f9f9f9;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-            overflow: hidden;
-            background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAYAAACp8Z5+AAAAEElEQVQImWNgYGBgYGBgYGBgYAAAAAYAAJcIHwQAAAAASUVORK5CYII=');
-        }
-
-        * {
-            font-family: 'Mada', sans-serif;
-            box-sizing: border-box;
-        }
-
-        .chat-container {
-            width: 100%;
-            height: 100vh;
-            background-color: #fff;
-            border-radius: 0;
-            overflow: hidden;
-            box-shadow: 0 0 20px rgba(0,0,0,0.08);
-            display: flex;
-            flex-direction: column;
-        }
-
-        .header {
-            padding: 15px;
-            text-align: center;
-            font-size: 18px;
-            color: #333;
-            border-bottom: 1px solid #eee;
-            flex-shrink: 0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .header-title {
-            margin: 0;
-            flex-grow: 1;
-            text-align: center;
-            font-weight: 500;
-        }
-
-        .new-chat-button {
-            background: none;
-            border: none;
-            color: #333;
-            font-size: 22px;
-            cursor: pointer;
-            padding: 0;
-            margin-left: 10px;
-        }
-
-        .scrollable-content {
-            flex-grow: 1;
-            overflow-y: auto;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            padding-bottom: 10px;
-        }
-        .scrollable-content::-webkit-scrollbar {
-            width: 4px;
-        }
-        .scrollable-content::-webkit-scrollbar-thumb {
-            background-color: #ddd;
-            border-radius: 4px;
-        }
-        .scrollable-content {
-            -ms-overflow-style: none;
-            scrollbar-width: thin;
-        }
-
-        .messages-container {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            margin-bottom: 10px;
-        }
-
-        .ai-message-wrapper, .user-message-wrapper {
-            display: flex;
-            align-items: flex-start;
-            width: 100%;
-        }
-
-        .ai-message {
-            padding: 12px 18px;
-            border-radius: 25px;
-            max-width: 80%;
-            word-wrap: break-word;
-            background-color: #f0f0f0;
-            color: #333;
-            margin-right: 10px;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-            animation: fadeIn 0.3s ease-out;
-            white-space: pre-line;
-        }
-
-        .user-message {
-            padding: 12px 18px;
-            border-radius: 25px;
-            max-width: 80%;
-            word-wrap: break-word;
-            background-color: #e0f7fa;
-            color: #333;
-            margin-left: 10px;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-            animation: fadeIn: fadeIn 0.3s ease-out;
-            white-space: pre-line;
-        }
-
-        @keyframes fadeIn {
-            from: { opacity: 0; transform: translateY(5px); }
-            to: { opacity: 1; transform: translateY(0); }
-        }
-
-        .ai-message-wrapper {
-            align-self: flex-start;
-            justify-content: flex-start;
-        }
-
-        .user-message-wrapper {
-            align-self: flex-end;
-            justify-content: flex-end;
-            flex-direction: row-reverse;
-        }
-
-        .user-message-wrapper .user-message {
-            margin-right: 0;
-            margin-left: 10px;
-        }
-
-        .profile-icon {
-            width: 35px;
-            height: 35px;
-            border-radius: 50%;
-            background-image: url('https://www2.0zz0.com/2025/02/01/21/869541338.png');
-            background-size: cover;
-            background-position: center;
-            flex-shrink: 0;
-            -webkit-mask: none;
-            mask: none;
-            background-color: transparent;
-        }
-
-        .initial-content {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .deepseek-logo {
-            width: 80px;
-            height: 80px;
-            margin-bottom: 20px;
-            background-color: #3b82f6;
-            -webkit-mask: url('data:image/svg+xml,<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM16.59 10.59L15.17 12L12 8.83L8.83 12L7.41 10.59L12 6L16.59 10.59ZM12 15.17L15.17 12L16.59 13.41L12 18L7.41 13.41L8.83 12L12 15.17Z" fill="currentColor"/></svg>') center/contain no-repeat;
-            mask: url('data:image/svg+xml,<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM16.59 10.59L15.17 12L12 8.83L8.83 12L7.41 10.59L12 6L16.59 10.59ZM12 15.17L15.17 12L16.59 13.41L12 18L7.41 13.41L8.83 12L12 15.17Z" fill="currentColor"/></svg>') center/contain no-repeat;
-            -webkit-mask-composite: source-over;
-            mask-composite: source-over;
-        }
-
-        .greeting-text {
-            font-size: 22px;
-            color: #333;
-            margin-bottom: 10px;
-            text-align: center;
-            font-weight: 500;
-        }
-
-        .question-text {
-            font-size: 22px;
-            color: #666;
-            text-align: center;
-        }
-
-        .input-area {
-            width: 100%;
-            padding: 15px;
-            background-color: #fff;
-            border-top: 1px solid #eee;
-            display: flex;
-            align-items: center;
-            box-sizing: border-box;
-            flex-shrink: 0;
-        }
-
-        .input-area.buttons-area {
-            border-top: none;
-            padding-top: 0;
-            padding-bottom: 0;
-            margin-top: 0;
-            margin-bottom: 0;
-            justify-content: flex-end;
-        }
-
-        .input-field {
-            flex-grow: 1;
-            border: none;
-            padding: 10px 15px;
-            border-radius: 25px;
-            background-color: #f0f0f0;
-            margin-right: 10px;
-            font-family: 'Mada', sans-serif;
-            outline: none;
-        }
-
-        .plus-button, .send-button, .deep-think-button {
-            background-color: #e0e0e0;
-            color: #333;
-            border: none;
-            border-radius: 50%;
-            width: 35px;
-            height: 35px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
-            margin-left: 5px;
-            margin-right: 5px;
-            transition: background-color 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .plus-button i, .send-button i, .deep-think-button i {
-            font-size: 18px;
-        }
-
-        .deep-think-button {
-            border-radius: 25px;
-            width: auto;
-            height: auto;
-            padding: 8px 15px;
-            border-radius: 25px;
-            display: flex;
-            align-items: center;
-            font-size: 14px;
-        }
-
-        .deep-think-button i {
-            margin-right: 5px;
-            font-size: 16px;
-        }
-
-        .deep-think-button.active {
-            background-color: #3b82f6;
-            color: white;
-        }
-
-        .deep-think-button.active i {
-            color: white;
-        }
-
-        .plus-button::after, .send-button::after, .deep-think-button::after {
-            content: '';
-            display: block;
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.1);
-            opacity: 0;
-            pointer-events: none;
-            border-radius: inherit;
-            transform: scale(1.5);
-            transition: opacity 0.3s ease-in-out;
-        }
-
-        .plus-button:active::after, .send-button:active::after, .deep-think-button:active::after {
-            opacity: 1;
-            transform: scale(1);
-            transition: transform 0s, opacity 0.3s ease-in-out;
-        }
-
-        .thinking-indicator {
-            display: none;
-            align-items: center;
-            justify-content: center;
-            padding: 10px;
-            color: #777;
-            font-size: 14px;
-        }
-
-        .thinking-indicator.active {
-            display: flex;
-        }
-
-    </style>
+  <meta charset="UTF-8">
+  <title>Login with Google</title>
+  <meta name="google-signin-client_id" content="1090725806114-q55osr5ugcgutq8kpi9p4qlivjv4rtqm.apps.googleusercontent.com">
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding-top: 100px;
+      background: #f3f3f3;
+    }
+    .box {
+      display: inline-block;
+      padding: 40px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.1);
+    }
+  </style>
 </head>
 <body>
-    <div class="chat-container">
-        <div class="header">
-            <button class="new-chat-button" id="new-chat-button">
-                <i class="far fa-comment-alt"></i>
-            </button>
-            <h2 class="header-title">اهلا عزيزتي هاجر ❤️</h2>
-        </div>
-        <div class="scrollable-content">
-            <div class="initial-content" id="initial-greeting">
-                <div class="deepseek-logo"></div>
-                <p class="greeting-text">مرحباً، أنا Sareea.</p>
-                <p class="question-text">كيف يمكنني مساعدتك اليوم؟</p>
-            </div>
-            <div class="messages-container" id="messages-area">
-                <!-- Messages will be appended here -->
-            </div>
-            <div class="thinking-indicator" id="thinking-indicator">
-                <i class="fas fa-spinner fa-spin" style="margin-left: 5px;"></i> جاري التفكير...
-            </div>
-        </div>
 
-        <div class="input-area">
-            <button class="plus-button"><i class="fas fa-plus"></i></button>
-            <input type="text" class="input-field" id="message-input" placeholder="أرسل رسالة إلى Sareea">
-            <button class="send-button" id="send-button"><i class="fas fa-arrow-up"></i></button>
-        </div>
+  <div class="box">
+    <h2>Login using Gmail</h2>
 
-        <div class="input-area buttons-area">
-            <button class="deep-think-button" id="deep-think-button"><i class="fas fa-brain"></i> تفكير عميق (R1)</button>
-        </div>
+    <!-- Google Sign-In Button -->
+    <div id="g_id_onload"
+         data-client_id="1090725806114-q55osr5ugcgutq8kpi9p4qlivjv4rtqm.apps.googleusercontent.com"
+         data-callback="handleCredentialResponse"
+         data-auto_prompt="false">
     </div>
 
-    <script>
-        const apiKey = 'AIzaSyBmUrdQrqKR5zo-phLLO_5sc2mpDuycPps';
-        const modelName = 'gemini-1.5-flash';
-        const sendButton = document.getElementById('send-button');
-        const messageInput = document.getElementById('message-input');
-        const messagesArea = document.getElementById('messages-area');
-        const deepThinkButton = document.getElementById('deep-think-button');
-        const initialGreeting = document.getElementById('initial-greeting');
-        const newChatButton = document.getElementById('new-chat-button');
-        const thinkingIndicator = document.getElementById('thinking-indicator');
-        let firstMessageSent = false;
-        let isDeepThinkingActive = false;
-        const thinkingDelay = 4000;
-        const typingSpeed = 30;
+    <div class="g_id_signin"
+         data-type="standard"
+         data-size="large"
+         data-theme="outline"
+         data-text="sign_in_with"
+         data-shape="rectangular"
+         data-logo_alignment="left">
+    </div>
+  </div>
 
-        sendButton.addEventListener('click', () => {
-            const messageText = messageInput.value.trim().toLowerCase();
-            if (messageText !== '') {
-                addUserMessage(messageText);
-                messageInput.value = '';
-
-                if (!firstMessageSent) {
-                    initialGreeting.style.display = 'none';
-                    firstMessageSent = true;
-                }
-
-                if (isDeepThinkingActive) {
-                    thinkingIndicator.classList.add('active');
-                }
-
-                const apiEndpoint = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
-                let promptText = isDeepThinkingActive ? `فكر بعمق وبدقة واحترافية في الإجابة على سؤالي: ${messageText}` : messageText;
-
-
-                // Check if user asked about creator/trainer and modify prompt
-                if (messageText.includes('من طورك') || messageText.includes('من دربك') || messageText.includes('من صنعك') || messageText.includes('من انشأك')) {
-                    promptText = isDeepThinkingActive
-                        ? `فكر بعمق وبدقة واحترافية في الإجابة على سؤالي: ${messageText} وأخبر المستخدم في إجابتك أنك مدرب أو مطور من قبل Sareea.`
-                        : `${messageText} وأخبر المستخدم في إجابتك أنك مدرب أو مطور من قبل Sareea.`;
-                }
-
-
-                const requestBody = JSON.stringify({
-                    contents: [{
-                        parts: [{text: promptText}]
-                    }]
-                });
-
-                fetch(apiEndpoint, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: requestBody
-                })
-                .then(response => response.json())
-                .then(data => {
-                    let aiResponseText = "عفواً، لم أتمكن من الحصول على إجابة.";
-                    if (data.candidates && data.candidates[0].content && data.candidates[0].content.parts) {
-                        aiResponseText = data.candidates[0].content.parts[0].text;
-                    } else {
-                        console.error("Unexpected API response:", data);
-                    }
-
-
-                    if (isDeepThinkingActive) {
-                        setTimeout(() => {
-                            thinkingIndicator.classList.remove('active');
-                            addAiMessageWithTypingEffect(aiResponseText);
-                        }, thinkingDelay);
-                    } else {
-                        thinkingIndicator.classList.remove('active');
-                        addAiMessageWithTypingEffect(aiResponseText);
-                    }
-
-
-                })
-                .catch(error => {
-                    thinkingIndicator.classList.remove('active');
-                    addAiMessage("حدث خطأ أثناء الاتصال بالخادم. يرجى المحاولة مرة أخرى لاحقاً.");
-                    console.error("API request error:", error);
-                });
-            }
-        });
-
-        messageInput.addEventListener('keypress', function(event) {
-            if (event.key === 'Enter') {
-                event.preventDefault();
-                sendButton.click();
-            }
-        });
-
-        function addUserMessage(message) {
-            const messageDiv = document.createElement('div');
-            messageDiv.classList.add('user-message');
-            messageDiv.whiteSpace = 'pre-line';
-            messageDiv.textContent = message;
-            const messageWrapper = document.createElement('div');
-            messageWrapper.classList.add('user-message-wrapper');
-            messageWrapper.appendChild(messageDiv);
-            messagesArea.appendChild(messageWrapper);
-            scrollToBottom();
-        }
-
-        function addAiMessage(message) {
-            const messageWrapper = document.createElement('div');
-            messageWrapper.classList.add('ai-message-wrapper');
-
-            const profileIcon = document.createElement('div');
-            profileIcon.classList.add('profile-icon');
-            messageWrapper.appendChild(profileIcon);
-
-            const messageDiv = document.createElement('div');
-            messageDiv.classList.add('ai-message');
-            messageDiv.innerHTML = message;
-            messageWrapper.appendChild(messageDiv);
-
-            messagesArea.appendChild(messageWrapper);
-            scrollToBottom();
-        }
-
-        function addAiMessageWithTypingEffect(text) {
-            const messageWrapper = document.createElement('div');
-            messageWrapper.classList.add('ai-message-wrapper');
-
-            const profileIcon = document.createElement('div');
-            profileIcon.classList.add('profile-icon');
-            messageWrapper.appendChild(profileIcon);
-
-            const messageDiv = document.createElement('div');
-            messageDiv.classList.add('ai-message');
-            messageWrapper.appendChild(messageDiv);
-            messagesArea.appendChild(messageWrapper);
-            scrollToBottom();
-
-            let charIndex = 0;
-            function typeWriter() {
-                if (charIndex < text.length) {
-                    messageDiv.innerHTML += text.charAt(charIndex);
-                    messageDiv.dir = "rtl";
-                    messageDiv.textContent = text.substring(0, charIndex + 1);
-                    charIndex++;
-                    setTimeout(typeWriter, typingSpeed);
-                } else {
-                    messageDiv.dir = "rtl";
-                }
-            }
-            typeWriter();
-        }
-
-        function scrollToBottom() {
-            messagesArea.scrollTop = messagesArea.scrollHeight;
-        }
-
-        deepThinkButton.addEventListener('click', () => {
-            isDeepThinkingActive = !isDeepThinkingActive;
-            deepThinkButton.classList.toggle('active', isDeepThinkingActive);
-            if (isDeepThinkingActive) {
-                console.log("Deep thinking mode activated");
-            } else {
-                console.log("Deep thinking mode deactivated");
-            }
-        });
-
-        newChatButton.addEventListener('click', () => {
-            messagesArea.innerHTML = '';
-            initialGreeting.style.display = 'flex';
-            firstMessageSent = false;
-            isDeepThinkingActive = false;
-            deepThinkButton.classList.remove('active');
-        });
-    </script>
+  <script>
+    function handleCredentialResponse(response) {
+      const token = response.credential;
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      alert("✅ Welcome, " + payload.name + "\n📧 Email: " + payload.email);
+    }
+  </script>
 
 </body>
 </html>
