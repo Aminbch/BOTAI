@@ -1,105 +1,133 @@
 import os
 import logging
-import google.generativeai as genai
-from telegram import Update
-from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
+from pathlib import Path
 
-# --- 1. الإعدادات وقراءة المعلومات الحساسة من متغيرات البيئة ---
-# هذا هو الأسلوب الصحيح للاستضافة. لا تكتب المفاتيح هنا مباشرة.
-# ستحتاج إلى ضبط هذه المتغيرات في لوحة تحكم الاستضافة الخاصة بك.
-TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN", "7885095446:AAHrqDP_AYb3Zk6Omj9eRCzZ-kVS_TlH998") # استبدل القيمة الافتراضية بالتوكن الجديد
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "AIzaSyApDdYoP_tFWKBcPRnSsMq3Arrfg0anpgw") # استبدل القيمة الافتراضية بمفتاح جوجل الجديد
-ALLOWED_USER_ID = int(os.getenv("ALLOWED_USER_ID", "6072979272")) # ايدي حسابك
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
+from telegram.ext import (
+    Application,
+    CommandHandler,
+    CallbackQueryHandler,
+    ContextTypes,
+    PicklePersistence,
+)
 
-# --- 2. إعداد تسجيل المعلومات (Logging) لمتابعة عمل البوت ---
+# --- 1. الإعدادات ---
+# سنقرأ التوكن من متغيرات البيئة كما هو الحال في الاستضافات
+# وضعنا التوكن القديم كقيمة افتراضية فقط للتوضيح، يجب عليك تغييره في الاستضافة
+TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN", "7885095446:AAHrqDP_AYb3Zk6Omj9eRCzZ-kVS_TlH998")
+
+# --- 2. إعداد تسجيل المعلومات لمتابعة عمل البوت ---
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     level=logging.INFO
 )
 logger = logging.getLogger(__name__)
 
-# --- 3. إعداد واجهة برمجة تطبيقات Gemini ---
-try:
-    genai.configure(api_key=GEMINI_API_KEY)
-    gemini_model = genai.GenerativeModel('gemini-1.5-flash-latest')
-    logger.info("تم إعداد Gemini AI بنجاح.")
-except Exception as e:
-    logger.error(f"فشل في إعداد Gemini AI: {e}")
-    gemini_model = None
-
-# --- 4. تعريف دوال الأوامر والرسائل (Handlers) ---
+# --- 3. تعريف دوال الأوامر والاستجابات ---
 
 async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    """إرسال رسالة ترحيب عند إرسال المستخدم /start."""
+    """
+    يتم استدعاء هذه الدالة عند إرسال المستخدم للأمر /start.
+    ترسل رسالة ترحيب مع الرصيد الحالي وزر التجميع.
+    """
     user = update.effective_user
-    # التحقق من هوية المستخدم قبل الرد
-    if user.id != ALLOWED_USER_ID:
-        logger.warning(f"تم حظر محاولة وصول من مستخدم غير مصرح له: {user.id} ({user.first_name})")
-        return # لا تقم بأي رد فعل
-
-    await update.message.reply_html(
-        f"أهلاً بك يا {user.mention_html()}! 👋\n\nأنا بوت دردشة ذكاء اصطناعي. يمكنك إرسال أي سؤال لي وسأحاول الإجابة عليه.",
+    logger.info(f"المستخدم {user.first_name} ({user.id}) بدأ البوت.")
+    
+    # نحصل على رصيد المستخدم من البيانات المحفوظة. إذا لم يكن موجوداً، نبدأه بصفر.
+    # context.user_data هو قاموس خاص بكل مستخدم ويتم حفظه تلقائياً.
+    balance = context.user_data.setdefault('balance', 0)
+    
+    # نص الرسالة
+    text = (
+        "مرحباً بك في بوت خدمات سوشيال ميديا احترافي 💎\n\n"
+        f"💰 **رصيدك الحالي:** {balance} نقطة"
     )
-
-async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    """التعامل مع جميع الرسائل النصية من المستخدم المصرح له."""
-    user_id = update.message.from_user.id
     
-    # فلتر أمان: تجاهل أي رسالة ليست من المستخدم المسموح له
-    if user_id != ALLOWED_USER_ID:
-        logger.warning(f"تم تجاهل رسالة من مستخدم غير مصرح له: {user_id}")
-        return
-
-    message_text = update.message.text
-    logger.info(f"رسالة مستلمة من المستخدم {user_id}: '{message_text}'")
-
-    if not gemini_model:
-        await update.message.reply_text("عذراً، خدمة الذكاء الاصطناعي غير متاحة حالياً.")
-        return
-
-    # إرسال رسالة "يفكر..." لإعطاء المستخدم إحساساً بالاستجابة
-    await context.bot.send_chat_action(chat_id=update.effective_chat.id, action='typing')
+    # إنشاء الزر الشفاف (Inline Button)
+    keyboard = InlineKeyboardMarkup([
+        [InlineKeyboardButton("🎁 اجمع الرصيد (3+ نقاط)", callback_data='collect_points')]
+    ])
     
-    try:
-        # إرسال النص إلى Gemini للحصول على رد
-        response = gemini_model.generate_content(message_text)
-        ai_response = response.text
-    except Exception as e:
-        logger.error(f"حدث خطأ أثناء الاتصال بـ Gemini API: {e}")
-        ai_response = "عذراً، حدث خطأ أثناء معالجة طلبك. الرجاء المحاولة مرة أخرى."
+    # إرسال الرسالة مع الزر
+    await update.message.reply_text(text, reply_markup=keyboard, parse_mode='Markdown')
 
-    # إرسال رد الذكاء الاصطناعي للمستخدم
-    await update.message.reply_text(ai_response)
+async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """
+    يتم استدعاء هذه الدالة عند الضغط على أي زر شفاف.
+    """
+    query = update.callback_query
+    
+    # يجب الإجابة على الـ callback query أولاً لإيقاف علامة التحميل عند المستخدم
+    await query.answer()
+    
+    # التحقق من أن الزر المضغوط هو زر تجميع النقاط
+    if query.data == 'collect_points':
+        user_id = query.from_user.id
+        
+        # زيادة رصيد المستخدم بمقدار 3 نقاط
+        current_balance = context.user_data.setdefault('balance', 0)
+        new_balance = current_balance + 3
+        context.user_data['balance'] = new_balance
+        
+        logger.info(f"المستخدم {user_id} جمع 3 نقاط. الرصيد الجديد: {new_balance}")
+        
+        # تحديث نص الرسالة بالرصيد الجديد
+        new_text = (
+            "مرحباً بك في بوت خدمات سوشيال ميديا احترافي 💎\n\n"
+            f"💰 **رصيدك الحالي:** {new_balance} نقطة"
+        )
+        
+        # إنشاء الزر مرة أخرى
+        keyboard = InlineKeyboardMarkup([
+            [InlineKeyboardButton("🎁 اجمع الرصيد (3+ نقاط)", callback_data='collect_points')]
+        ])
+        
+        try:
+            # محاولة تعديل الرسالة الأصلية بالمعلومات الجديدة
+            await query.edit_message_text(text=new_text, reply_markup=keyboard, parse_mode='Markdown')
+            # إظهار إشعار مؤقت للمستخدم يؤكد العملية
+            await query.answer(text=f"🎉 تم إضافة 3 نقاط! رصيدك الآن {new_balance}.", show_alert=False)
+        except Exception as e:
+            # إذا فشل التعديل (مثلاً الرسالة قديمة جداً)، نسجل الخطأ
+            logger.error(f"فشل في تعديل الرسالة: {e}")
+            # يمكن إرسال رسالة جديدة كبديل إذا أردنا
+            # await context.bot.send_message(chat_id=query.message.chat_id, text=f"رصيدك الآن هو: {new_balance}")
 
 async def error_handler(update: object, context: ContextTypes.DEFAULT_TYPE) -> None:
-    """تسجيل الأخطاء التي تسببها تحديثات Telegram."""
+    """تسجيل الأخطاء التي تحدث."""
     logger.error("حدث استثناء أثناء التعامل مع تحديث:", exc_info=context.error)
 
 
-# --- 5. الدالة الرئيسية لتشغيل البوت ---
+# --- 4. الدالة الرئيسية لتشغيل البوت ---
 def main() -> None:
-    """تشغيل البوت."""
+    """تشغيل البوت وإعداده لحفظ البيانات."""
     logger.info("🚀 بدء تشغيل البوت...")
 
     # التحقق من وجود التوكن
     if not TELEGRAM_TOKEN:
-        logger.critical("خطأ: لم يتم العثور على TELEGRAM_TOKEN. يرجى ضبطه كمتغير بيئة.")
-        return
-    if not GEMINI_API_KEY:
-        logger.critical("خطأ: لم يتم العثور على GEMINI_API_KEY. يرجى ضبطه كمتغير بيئة.")
+        logger.critical("خطأ فادح: لم يتم العثور على TELEGRAM_TOKEN. يرجى إعداده.")
         return
         
-    # إنشاء التطبيق
-    application = Application.builder().token(TELEGRAM_TOKEN).build()
-
-    # إضافة المعالجات (Handlers)
-    application.add_handler(CommandHandler("start", start_command))
-    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
+    # إعداد نظام حفظ البيانات (Persistence)
+    # سيتم إنشاء ملف "bot_data" لحفظ رصيد المستخدمين وكل المعلومات تلقائياً
+    persistence = PicklePersistence(filepath=Path("bot_data.pickle"))
     
-    # إضافة معالج الأخطاء
+    # إنشاء التطبيق وربطه بالتوكن ونظام حفظ البيانات
+    application = (
+        Application.builder()
+        .token(TELEGRAM_TOKEN)
+        .persistence(persistence)
+        .build()
+    )
+
+    # إضافة معالجات الأوامر والضغط على الأزرار
+    application.add_handler(CommandHandler("start", start_command))
+    application.add_handler(CallbackQueryHandler(button_handler))
+    
+    # إضافة معالج الأخطاء (مهم جداً)
     application.add_error_handler(error_handler)
 
-    # تشغيل البوت حتى يتم إيقافه يدوياً (e.g., Ctrl-C)
+    # تشغيل البوت في وضع الاستطلاع (polling)
     application.run_polling()
     logger.info("🛑 تم إيقاف البوت.")
 
