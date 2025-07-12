@@ -2,7 +2,6 @@ import os
 import logging
 from pathlib import Path
 from datetime import datetime, timedelta
-import asyncio
 
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, Bot
 from telegram.ext import (
@@ -15,12 +14,9 @@ from telegram.ext import (
 from telegram.constants import ParseMode
 
 # --- 1. الإعدادات ---
-# التوكن الخاص بالبوت الرئيسي
 MAIN_BOT_TOKEN = os.getenv("MAIN_BOT_TOKEN", "7885095446:AAHrqDP_AYb3Zk6Omj9eRCzZ-kVS_TlH998")
-# التوكن الخاص ببوت التحكم (الإشعارات)
 CONTROL_BOT_TOKEN = os.getenv("CONTROL_BOT_TOKEN", "8116069580:AAG9GFpj89FUArrqopdSuuIF9STOL_KJtug")
-# الأيدي الخاص بك لاستقبال الإشعارات في بوت التحكم
-ADMIN_CHAT_ID = os.getenv("ADMIN_CHAT_ID", "6072979272") # استخدم نفس الـ ID الخاص بك
+ADMIN_CHAT_ID = os.getenv("ADMIN_CHAT_ID", "6072979272")
 
 # --- 2. إعداد تسجيل المعلومات ---
 logging.basicConfig(
@@ -30,15 +26,10 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # --- 3. إعداد بوت التحكم ---
-# نقوم بإنشاء كائن Bot منفصل لبوت التحكم
-# هذا يسمح للبوت الرئيسي بإرسال رسائل عبر بوت التحكم
 control_bot = Bot(token=CONTROL_BOT_TOKEN)
 
 # --- 4. دالة إرسال الإشعارات للأدمن ---
 async def send_admin_notification(text: str):
-    """
-    ترسل رسالة من بوت التحكم إلى الأدمن.
-    """
     try:
         await control_bot.send_message(
             chat_id=ADMIN_CHAT_ID,
@@ -46,7 +37,7 @@ async def send_admin_notification(text: str):
             parse_mode=ParseMode.HTML,
             disable_web_page_preview=True
         )
-        logger.info(f"تم إرسال إشعار إلى الأدمن بنجاح.")
+        logger.info("تم إرسال إشعار إلى الأدمن بنجاح.")
     except Exception as e:
         logger.error(f"فشل في إرسال إشعار للأدمن: {e}")
 
@@ -55,53 +46,50 @@ def get_main_menu(context: ContextTypes.DEFAULT_TYPE) -> tuple[str, InlineKeyboa
     user_data = context.user_data
     balance = user_data.setdefault('balance', 0)
     user_id = context._user_id
+
     text = (
-        "مرحباً بك في بوت كريك ✨\n\n"
-        f"👈 رصيد حسابك: <b>{balance}</b> نقطة\n"
-        f"👈 ايدي حسابك: <code>{user_id}</code>"
+        "أهلاً بك في عالم الخدمات الرقمية مع بوت كريك ✨\n\n"
+        f"▫️ رصيدك الحالي: <b>{balance}</b> نقطة\n"
+        f"▫️ معرف المستخدم: <code>{user_id}</code>"
     )
+    
+    # تصميم جديد ومزخرف للأزرار
     keyboard = [
-        [InlineKeyboardButton("الخدمات 🛒", callback_data='menu_services')],
+        [InlineKeyboardButton("خـدمـاتـنـا 🛍️", callback_data='menu_services')],
         [
-            InlineKeyboardButton("تجميع 💚", callback_data='menu_collect'),
-            InlineKeyboardButton("الحساب 🎗️", callback_data='menu_account')
+            InlineKeyboardButton("💸 تـجـمـيـع نـقـاط", callback_data='menu_collect'),
+            InlineKeyboardButton("👤 حـسـابـي", callback_data='menu_account')
         ],
-        [InlineKeyboardButton("الهدية اليومية 🎁", callback_data='action_daily_gift')]
+        [InlineKeyboardButton("🎁 الـهـديـة الـيـومـيـة", callback_data='action_daily_gift')],
+        [InlineKeyboardButton("💳 شـحـن الـرصـيـد", callback_data='menu_charge_balance')]
     ]
+    
     return text, InlineKeyboardMarkup(keyboard)
 
 def get_services_menu() -> tuple[str, InlineKeyboardMarkup]:
-    text = "اختر التطبيق الذي توده 📱"
+    text = "اختر المنصة التي ترغب بخدماتها 📱"
     keyboard = [
         [
-            InlineKeyboardButton("تيلغرام 🩵", callback_data='service_telegram'),
-            InlineKeyboardButton("انستغرام 🧡", callback_data='service_instagram')
+            InlineKeyboardButton("تـيـلـغـرام 🔹", callback_data='service_telegram'),
+            InlineKeyboardButton("إنـسـتـغـرام 🔸", callback_data='service_instagram')
         ],
-        [InlineKeyboardButton("تيك توك 🖤", callback_data='service_tiktok')],
-        [InlineKeyboardButton("العودة ✔️", callback_data='back_to_main')]
+        [InlineKeyboardButton("تـيـك تـوك ▪️", callback_data='service_tiktok')],
+        [InlineKeyboardButton("🔙 عــودة", callback_data='back_to_main')]
     ]
     return text, InlineKeyboardMarkup(keyboard)
 
 # --- 6. دوال معالجة الأوامر والضغطات ---
-
 async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    """
-    يعالج الأمر /start، يرسل إشعاراً للأدمن، ويعرض القائمة الرئيسية.
-    """
     user = update.effective_user
     logger.info(f"المستخدم {user.first_name} ({user.id}) بدأ/عاد إلى البوت.")
     
-    # التحقق إذا كان هذا هو أول تفاعل للمستخدم مع البوت
     is_new_user = 'balance' not in context.user_data
     
-    # عرض القائمة الرئيسية للمستخدم
     text, keyboard = get_main_menu(context)
     await update.message.reply_text(text, reply_markup=keyboard, parse_mode=ParseMode.HTML)
     
-    # إذا كان مستخدماً جديداً، أرسل إشعاراً للأدمن
     if is_new_user:
         logger.info(f"مستخدم جديد! {user.first_name} ({user.id}). إرسال إشعار...")
-        # إنشاء رسالة الإشعار
         notification_text = (
             "<b>🎉 مستخدم جديد انضم إلى البوت!</b>\n\n"
             f"<b>الاسم:</b> {user.full_name}\n"
@@ -109,9 +97,7 @@ async def start_command(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
             f"<b>الأيدي:</b> <code>{user.id}</code>\n"
             f"<b>رابط مباشر:</b> <a href='tg://user?id={user.id}'>اضغط هنا</a>"
         )
-        # إرسال الإشعار
         await send_admin_notification(notification_text)
-
 
 async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     query = update.callback_query
@@ -127,13 +113,18 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
         await query.edit_message_text(text, reply_markup=keyboard, parse_mode=ParseMode.HTML)
     elif action == 'action_daily_gift':
         await handle_daily_gift(query, context)
+    
+    # الأزرار التي لم تفعّل بعد
     elif action == 'menu_collect':
-        await query.answer(text="قسم تجميع النقاط - سيتم إضافته قريباً!", show_alert=True)
+        await query.answer(text="قسم تجميع النقاط - سيتم تفعيله قريباً!", show_alert=True)
     elif action == 'menu_account':
-        await query.answer(text="قسم الحساب - سيتم إضافته قريباً!", show_alert=True)
+        await query.answer(text="قسم الحساب - سيتم تفعيله قريباً!", show_alert=True)
+    elif action == 'menu_charge_balance':
+        # رسالة مؤقتة لزر شحن الرصيد
+        await query.answer(text="طرق شحن الرصيد - سيتم إضافتها قريباً!", show_alert=True)
     elif action.startswith('service_'):
         service_name = action.split('_')[1].capitalize()
-        await query.answer(text=f"خدمات {service_name} - سيتم إضافتها قريباً!", show_alert=True)
+        await query.answer(text=f"خدمات {service_name} - سيتم تفعيلها قريباً!", show_alert=True)
 
 async def handle_daily_gift(query, context: ContextTypes.DEFAULT_TYPE):
     user_data = context.user_data
@@ -143,7 +134,7 @@ async def handle_daily_gift(query, context: ContextTypes.DEFAULT_TYPE):
         remaining_time = (last_gift_time + timedelta(hours=24)) - datetime.now()
         hours, remainder = divmod(remaining_time.seconds, 3600)
         minutes, _ = divmod(remainder, 60)
-        await query.answer(text=f"⏳ عذراً، لقد استلمت هديتك بالفعل. عد بعد {hours} ساعة و {minutes} دقيقة.", show_alert=True)
+        await query.answer(text=f"⏳ عذراً، يمكنك استلام هديتك مرة كل 24 ساعة. تبقى: {hours} س و {minutes} د.", show_alert=True)
     else:
         user_data['balance'] = user_data.setdefault('balance', 0) + 40
         user_data['last_gift_time'] = datetime.now()
@@ -161,7 +152,7 @@ def main() -> None:
     logger.info("🚀 بدء تشغيل البوت الرئيسي...")
     
     if not MAIN_BOT_TOKEN or not CONTROL_BOT_TOKEN or not ADMIN_CHAT_ID:
-        logger.critical("خطأ فادح: أحد التوكنات أو ايدي الأدمن غير موجود. يرجى إعدادهم كمتغيرات بيئة.")
+        logger.critical("خطأ فادح: أحد التوكنات أو ايدي الأدمن غير موجود.")
         return
         
     persistence = PicklePersistence(filepath=Path("bot_data.pickle"))
